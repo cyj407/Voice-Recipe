@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.linyunchen.voicerecipe.R;
 
@@ -52,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject obj = localDataArray.getJSONObject(i);
                 cuisine.add(obj.getString("name"));
             }
-
         }catch (Exception e){   e.printStackTrace(); }
     }
 
@@ -103,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void appSpeak(final String text) {
         newMessage(text, false);
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+    //    textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);   // ?
+        textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
     }
 
     public void userSpeak() {
@@ -120,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if((requestCode == 1) && (data != null) && (resultCode == RESULT_OK)){
             ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            newMessage(result.get(0).toString(), true);
+        //    Log.i("onActivityResult",result.get(0).toString());
+            newMessage(result.get(0).toString(), true);     // true -> user talks
             appReply(result.get(0).toString());
         }
     }
@@ -129,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> userSpeakSeg = new WordSegmenter().segWord(message, "");
         // get the vocal result after segmenting words
 
-        /* do IR-based chatbot to get the optimal recipe */
         if(!decideCuisine) {
             // send the message to the RecipeDatabase
             OptimalCuisine oc = new OptimalCuisine();
@@ -158,7 +159,18 @@ public class MainActivity extends AppCompatActivity {
 
             if(userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {
                 if(count < recipe.size()) {
-                    appSpeak(recipe.get(count++));
+
+                    appSpeak(recipe.get(count));
+
+                    // seg recipe
+                    ArrayList<String> segStepContent = new WordSegmenter().segWord(recipe.get(count), "");
+                    for(int j = 0;j<segStepContent.size();++j){
+                        if(segStepContent.get(j).equals("分鐘")){
+                            appSpeak("要幫你計時"+segStepContent.get(j-2)+"分鐘嗎？請回覆。");
+                            break;
+                        }
+                    }
+                    count++;
                     return;
                 }
             }

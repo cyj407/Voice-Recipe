@@ -1,4 +1,4 @@
-package com.example.linyunchen.voicerecipe;
+package voiceRecipe;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.example.linyunchen.voicerecipe.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,7 @@ public class MessageAdapter extends BaseAdapter {
 
     public void add(Message message) {
         this.messages.add(message);
-        notifyDataSetChanged();
+        notifyDataSetChanged();      // update message
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.linyunchen.voicerecipe;
+package voiceRecipe;
 
 public class Message {
     private String text;

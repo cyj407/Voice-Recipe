@@ -1,4 +1,4 @@
-package com.example.linyunchen.voicerecipe;
+package voiceRecipe;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -6,32 +6,55 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.example.linyunchen.voicerecipe.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import inputProcessing.FetchRecipe;
+import inputProcessing.OptimalCuisine;
+import inputProcessing.WordSegmenter;
+
 public class MainActivity extends AppCompatActivity {
 
-    private MessageAdapter messageAdapter;
-    private ListView listView;
-    private TextToSpeech textToSpeech;
-    private ImageButton imageButton;
+    public static ArrayList<String> cuisine,recipe;
 
-    //
-    private String[] recipe = { "需要準備的材料有：雞腿肉1斤、香菇15朵、薑3片、蔥1支、米酒少許、鹽適量。完成後請回覆。",
-                                "第一步，川燙雞腿肉，沖洗後備用。完成後請回覆。",
-                                "第二步，香菇泡水，薑切片，蔥切段。完成後請回覆。",
-                                "第三步，準備一鍋1200毫升的水，放入雞腿肉，加點米酒。完成後請回覆。",
-                                "第四步，蓋鍋蓋，大火滾煮後轉小火，燉煮30分鐘。完成後請回覆。",
-                                "第五步，加入薑片、香菇及泡香菇的水，蓋鍋蓋，轉大火滾煮後再轉小火續煮20分鐘。完成後請回覆。",
-                                "第六步，加入蔥段後，再小火煮10分鐘。完成後請回覆。",
-                                "第七步，火，加入適當鹽巴調味。完成後請回覆。",
-                                "恭喜你完成了！" };
+    private MessageAdapter messageAdapter;  // show the message
+    private ListView listView;              // show the whole conversation
+    private TextToSpeech textToSpeech;
+    private ImageButton imageButton;        // microphone
+
+    private String localCuisineData;
+    private boolean decideCuisine = false;
     private int count = 0;
-    //
+
+    public void getAllCuisine(){
+        cuisine = new ArrayList<>();
+        try{
+            InputStream is = getAssets().open("cuisine.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            localCuisineData = new String(buffer);
+            JSONArray localDataArray = new JSONArray(localCuisineData);
+
+            for(int i = 0;i<localDataArray.length();++i){
+                JSONObject obj = localDataArray.getJSONObject(i);
+                cuisine.add(obj.getString("name"));
+            }
+
+        }catch (Exception e){   e.printStackTrace(); }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(this);
         listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(messageAdapter);
+
+        getAllCuisine();
 
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -70,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    // always let the latest message show on top
     void newMessage(String text, boolean belongsToCurrentUser){
         messageAdapter.add(new Message(text, belongsToCurrentUser));
         listView.smoothScrollToPosition(listView.getCount() - 1);
@@ -88,8 +114,7 @@ public class MainActivity extends AppCompatActivity {
         try{
             startActivityForResult(intent, 1);
         }
-        catch(ActivityNotFoundException e){
-        }
+        catch(ActivityNotFoundException e){}
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -100,27 +125,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //
     public void appReply(String message) {
-        ArrayList<String> seg = new WordSegmenter().segWord(message, "");
-        for(int i = 0; i < seg.size(); i++) {
-            if(seg.get(i).equals("香菇")) {
-                if(count < recipe.length) {
-                    appSpeak(recipe[count]);
-                    count++;
+        ArrayList<String> userSpeakSeg = new WordSegmenter().segWord(message, "");
+        // get the vocal result after segmenting words
+
+        /* do IR-based chatbot to get the optimal recipe */
+        if(!decideCuisine) {
+            // send the message to the RecipeDatabase
+            OptimalCuisine oc = new OptimalCuisine();
+            String dishName = oc.findOptimalCuisine(message);
+            FetchRecipe fetchRecipe = new FetchRecipe();
+            fetchRecipe.execute();
+
+            appSpeak("我們推薦你的料理是："+dishName+"\n你要做這道料理嗎？請回覆。");
+            decideCuisine = true;
+            return;
+        }
+
+        for(int i = 0; i < userSpeakSeg.size(); i++) {
+            // "finish" message from user
+            if(count == 0){
+                if(userSpeakSeg.get(i).equals("好") || userSpeakSeg.get(i).equals("可以") || userSpeakSeg.get(i).equals("繼續") || userSpeakSeg.get(i).equals("需要") || userSpeakSeg.get(i).equals("準備")){
+                    appSpeak(recipe.get(count++));
+                    return;
+                }
+                else{
+                    appSpeak("請輸入其他的料理。若輸入同樣的料理名，我們會推薦一樣的結果。");
+                    decideCuisine = false;
                     return;
                 }
             }
-            else if(seg.get(i).equals("完成") || seg.get(i).equals("準備好") || seg.get(i).equals("做好") || seg.get(i).equals("好了") || seg.get(i).equals("下一步")) {
-                if(count < recipe.length) {
-                    appSpeak(recipe[count]);
-                    count++;
+
+            if(userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {
+                if(count < recipe.size()) {
+                    appSpeak(recipe.get(count++));
                     return;
                 }
             }
         }
+        // vocal result can't be recognized
         appSpeak("對不起，我沒有聽懂，請你再說一次。");
         return;
     }
-    //
 }

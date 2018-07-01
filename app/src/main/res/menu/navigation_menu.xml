@@ -7,12 +7,12 @@
         <item
             android:id="@+id/nag_chat"
             android:icon="@mipmap/baseline_chat_black_24dp"
-            android:title="做菜"/>
+            android:title="學習做菜"/>
 
         <item
-            android:id="@+id/nag_countdown"
-            android:icon="@mipmap/baseline_timelapse_black_24dp"
-            android:title="目前計時"/>
+            android:id="@+id/nag_cuisine"
+            android:icon="@mipmap/baseline_restaurant_menu_black_24dp"
+            android:title="好菜總覽"/>
 
         <item
             android:id="@+id/nag_setting"
@@ -21,9 +21,18 @@
 
         <item
             android:id="@+id/nag_about"
-            android:icon="@mipmap/baseline_restaurant_menu_black_24dp"
+            android:icon="@mipmap/baseline_label_black_24dp"
             android:title="關於"/>
 
     </group>
+
+    <group>
+        <item
+            android:id="@+id/nag_countdown"
+            android:icon="@mipmap/baseline_timelapse_black_24dp"
+            android:title="目前計時"/>
+
+    </group>
+
 
 </menu>

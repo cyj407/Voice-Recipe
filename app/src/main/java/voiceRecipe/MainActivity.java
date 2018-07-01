@@ -9,21 +9,17 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.linyunchen.voicerecipe.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import fragmentPage.AboutFragment;
 import fragmentPage.SettingFragment;
-import fragmentPage.TimerFragment;
+import fragmentPage.CuisineFragment;
 import fragmentPage.VoiceRecipeFragment;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, VoiceRecipeFragment.OnCountdownStartListener, TimerFragment.OnCountdownFinishListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private DrawerLayout drawerLayout;
     public android.support.v4.app.FragmentManager fragmentManager;
@@ -31,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Fragment curFragment;
     public static boolean microphoneOn = true;
 
-    private TimerFragment timerFragment;
+    private CuisineFragment cuisineFragment;
     private SettingFragment settingFragment;
     private AboutFragment aboutFragment;
     private VoiceRecipeFragment voiceRecipeFragment;
@@ -41,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        timerFragment = new TimerFragment();
+        cuisineFragment = new CuisineFragment();
         settingFragment = new SettingFragment();
         aboutFragment = new AboutFragment();
         voiceRecipeFragment = new VoiceRecipeFragment();
@@ -84,16 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nextFragmentTag = "voiceRecipe";
                 nextFragment = getSupportFragmentManager().findFragmentByTag("voiceRecipe");
                 break;
-            case R.id.nag_countdown:
-                microphoneOn = false;
-                nextFragmentTag = "timer";
-                if(getSupportFragmentManager().findFragmentByTag("timer") == null){
-                    nextFragment = timerFragment;
-                }
-                else{
-                    nextFragment = getSupportFragmentManager().findFragmentByTag("timer");
-                }
-                break;
             case R.id.nag_setting:
                 microphoneOn = false;
                 nextFragmentTag = "setting";
@@ -102,6 +88,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 else{
                     nextFragment = getSupportFragmentManager().findFragmentByTag("setting");
+                }
+                break;
+            case R.id.nag_cuisine:
+                microphoneOn = false;
+                nextFragmentTag = "cuisine";
+                if(getSupportFragmentManager().findFragmentByTag("cuisine") == null){
+                    nextFragment = cuisineFragment;
+                }
+                else{
+                    nextFragment = getSupportFragmentManager().findFragmentByTag("cuisine");
                 }
                 break;
             case R.id.nag_about:
@@ -114,6 +110,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     nextFragment = getSupportFragmentManager().findFragmentByTag("about");
                 }
                 break;
+            case R.id.nag_countdown:
+                if(!VoiceRecipeFragment.timeLeftText.equals("00:01"))
+                    Toast.makeText(this,"還剩下"+VoiceRecipeFragment.timeLeftText,Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(this,"目前沒有正在倒數的項目",Toast.LENGTH_SHORT).show();
+                return true;
         }
         if(curFragment != nextFragment){
             for(int i = 0;i< fm.getFragments().size();++i){
@@ -141,15 +143,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else{
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public void onCountdownStart(int min) {
-        timerFragment.startStop(min);
-    }
-
-    @Override
-    public void onCountdownFinish(String text) {
-        voiceRecipeFragment.appSpeak(text,false);
     }
 }

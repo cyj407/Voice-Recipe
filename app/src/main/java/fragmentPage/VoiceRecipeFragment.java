@@ -7,16 +7,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.linyunchen.voicerecipe.R;
 
@@ -35,7 +40,9 @@ import voiceRecipe.Message;
 import voiceRecipe.MessageAdapter;
 
 public class VoiceRecipeFragment extends Fragment {
+
     public static ArrayList<String> cuisine,recipe;
+    public static String timeLeftText = "00:01";
 
     private MessageAdapter messageAdapter;  // show the message
     private ListView listView;              // show the whole conversation
@@ -43,27 +50,12 @@ public class VoiceRecipeFragment extends Fragment {
     private TextToSpeech textToSpeech;
     private ImageButton imageButton;        // microphone
 
+    private CountDownTimer countDownTimer;
+
     private String localCuisineData;
     private boolean decideCuisine = false;
     private int countDownTime = 0;
     private int count = 0;
-
-    OnCountdownStartListener countdownStartListener;
-
-    public interface OnCountdownStartListener{
-        public void onCountdownStart(int min);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Activity activity = (Activity) context;
-        try {
-            countdownStartListener = (OnCountdownStartListener) activity;
-        } catch (ClassCastException e){
-            throw new ClassCastException(activity.toString()+" must implement");
-        }
-    }
 
     public VoiceRecipeFragment(){}
 
@@ -209,7 +201,8 @@ public class VoiceRecipeFragment extends Fragment {
                                     .setPositiveButton("好的", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            countdownStartListener.onCountdownStart(countDownTime);
+                                            startTimer();
+                                            //     countdownStartListener.onCountdownStart(countDownTime);
                                         }
                                     })
                                     .setNegativeButton("不用", new DialogInterface.OnClickListener() {
@@ -237,5 +230,23 @@ public class VoiceRecipeFragment extends Fragment {
         // vocal result can't be recognized
         appSpeak("對不起，我沒有聽懂，請你再說一次。",true);
         return;
+    }
+
+    public void startTimer(){
+        countDownTimer = new CountDownTimer(countDownTime*60*1000,1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long timerLeftInMillisec = millisUntilFinished/1000;
+                timeLeftText = String.format("%02d:%02d",(timerLeftInMillisec%3600)/60,(timerLeftInMillisec%60));
+                //     MainActivity.countdownTextView.setText(timeLeftText);
+            }
+            @Override
+            public void onFinish() {
+            //    MainActivity.countdownTextView.setText("");
+                Toast.makeText(getContext(),"倒數計時已結束",Toast.LENGTH_SHORT).show();
+                appSpeak("倒數計時已結束、倒數計時已結束、倒數計時已結束。",false);
+            //    countdownFinishListener.onCountdownFinish("倒數計時已結束、倒數計時已結束、倒數計時已結束");
+            }
+        }.start();
     }
 }

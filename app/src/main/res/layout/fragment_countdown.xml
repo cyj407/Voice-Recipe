@@ -14,13 +14,14 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/textView_countdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SHOW TIMER"
-            android:textColor="#000000"
-            android:textSize="30sp"
-            android:layout_gravity="center_horizontal">
-        </TextView>
+            android:text="目前沒有正在倒數的項目"
+            android:textColor="@color/colorBubble_blue"
+            android:textSize="25dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
 
 
     </LinearLayout>

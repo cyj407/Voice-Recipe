@@ -1,23 +1,20 @@
 package fragmentPage;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -48,7 +45,25 @@ public class VoiceRecipeFragment extends Fragment {
 
     private String localCuisineData;
     private boolean decideCuisine = false;
+    private int countDownTime = 0;
     private int count = 0;
+
+    OnCountdownStartListener countdownStartListener;
+
+    public interface OnCountdownStartListener{
+        public void onCountdownStart(int min);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Activity activity = (Activity) context;
+        try {
+            countdownStartListener = (OnCountdownStartListener) activity;
+        } catch (ClassCastException e){
+            throw new ClassCastException(activity.toString()+" must implement");
+        }
+    }
 
     public VoiceRecipeFragment(){}
 
@@ -69,7 +84,7 @@ public class VoiceRecipeFragment extends Fragment {
             public void onInit(int status) {
                 if(status == TextToSpeech.SUCCESS){
                     textToSpeech.setLanguage(Locale.CHINESE);
-                    appSpeak("歡迎使用說一口好菜！請問你想要做什麼料理？");
+                    appSpeak("歡迎使用說一口好菜！請問你想要做什麼料理？",true);
                 }
             }
         });
@@ -119,8 +134,10 @@ public class VoiceRecipeFragment extends Fragment {
         listView.smoothScrollToPosition(listView.getCount() - 1);
     }
 
-    public void appSpeak(final String text) {
-        newMessage(text, false);
+    public void appSpeak(final String text,boolean addToListView) {
+        if(addToListView){
+            newMessage(text, false);
+        }
         //    textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
     }
@@ -155,7 +172,7 @@ public class VoiceRecipeFragment extends Fragment {
             String dishName = oc.findOptimalCuisine(message);
             FetchRecipe fetchRecipe = new FetchRecipe();
             fetchRecipe.execute();
-            appSpeak("我們推薦你的料理是："+dishName+"\n你要做這道料理嗎？請回覆。");
+            appSpeak("我們推薦你的料理是："+dishName+"\n你要做這道料理嗎？請回覆。",true);
             decideCuisine = true;
             return;
         }
@@ -164,11 +181,11 @@ public class VoiceRecipeFragment extends Fragment {
             // "finish" message from user
             if(count == 0){
                 if(userSpeakSeg.get(i).equals("好") || userSpeakSeg.get(i).equals("可以") || userSpeakSeg.get(i).equals("繼續") || userSpeakSeg.get(i).equals("需要") || userSpeakSeg.get(i).equals("準備")){
-                    appSpeak(recipe.get(count++));
+                    appSpeak(recipe.get(count++),true);
                     return;
                 }
                 else{
-                    appSpeak("請輸入其他的料理。若輸入同樣的料理名，我們會推薦一樣的結果。");
+                    appSpeak("請輸入其他的料理。若輸入同樣的料理名，我們會推薦一樣的結果。",true);
                     decideCuisine = false;
                     return;
                 }
@@ -176,12 +193,39 @@ public class VoiceRecipeFragment extends Fragment {
 
             if(userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {
                 if(count < recipe.size()) {
-                    appSpeak(recipe.get(count));
+                    appSpeak(recipe.get(count),true);
                     // seg recipe
                     ArrayList<String> segStepContent = new WordSegmenter().segWord(recipe.get(count), "");
                     for(int j = 0;j<segStepContent.size();++j){
                         if(segStepContent.get(j).equals("分鐘")){
-                            appSpeak("要幫你計時"+segStepContent.get(j-2)+"分鐘嗎？請回覆。");
+
+                            String text = "要幫你計時"+segStepContent.get(j-2)+"分鐘嗎？請選擇";
+                            appSpeak(text,false);
+                            countDownTime = Integer.valueOf(segStepContent.get(j-2));
+
+                            AlertDialog.Builder ab = new AlertDialog.Builder(this.getContext());
+                            ab.setMessage(text)
+                                    .setCancelable(false)
+                                    .setPositiveButton("好的", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            countdownStartListener.onCountdownStart(countDownTime);
+                                        }
+                                    })
+                                    .setNegativeButton("不用", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                            final AlertDialog ad = ab.create();
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ad.show();
+                                }
+                            },8*1000);
                             break;
                         }
                     }
@@ -191,7 +235,7 @@ public class VoiceRecipeFragment extends Fragment {
             }
         }
         // vocal result can't be recognized
-        appSpeak("對不起，我沒有聽懂，請你再說一次。");
+        appSpeak("對不起，我沒有聽懂，請你再說一次。",true);
         return;
     }
 }

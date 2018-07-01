@@ -30,6 +30,7 @@ public class FetchRecipe extends AsyncTask<Void,Void,Void>{
     @Override
     protected Void doInBackground(Void... voids) {
         try {
+         //   URL url = new URL("https://api.mlab.com/api/1/databases/recipe/collections/_test?apiKey=mlAf4szqYK9PdnSO1i7qrJwGGttCL07O");
             URL url = new URL("https://api.mlab.com/api/1/databases/recipe/collections/_" + recipeID + "?apiKey=mlAf4szqYK9PdnSO1i7qrJwGGttCL07O");
             HttpURLConnection connect = (HttpURLConnection) url.openConnection();
 

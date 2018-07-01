@@ -23,7 +23,7 @@ import fragmentPage.SettingFragment;
 import fragmentPage.TimerFragment;
 import fragmentPage.VoiceRecipeFragment;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, VoiceRecipeFragment.OnCountdownStartListener, TimerFragment.OnCountdownFinishListener{
 
     private DrawerLayout drawerLayout;
     public android.support.v4.app.FragmentManager fragmentManager;
@@ -31,15 +31,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Fragment curFragment;
     public static boolean microphoneOn = true;
 
-    private TimerFragment timerFragment = new TimerFragment();
-    private SettingFragment settingFragment = new SettingFragment();
-    private AboutFragment aboutFragment = new AboutFragment();
-    private VoiceRecipeFragment voiceRecipeFragment = new VoiceRecipeFragment();
+    private TimerFragment timerFragment;
+    private SettingFragment settingFragment;
+    private AboutFragment aboutFragment;
+    private VoiceRecipeFragment voiceRecipeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        timerFragment = new TimerFragment();
+        settingFragment = new SettingFragment();
+        aboutFragment = new AboutFragment();
+        voiceRecipeFragment = new VoiceRecipeFragment();
 
         fragmentManager = getSupportFragmentManager();
         if(findViewById(R.id.fragment_container)!=null){
@@ -138,4 +143,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @Override
+    public void onCountdownStart(int min) {
+        timerFragment.startStop(min);
+    }
+
+    @Override
+    public void onCountdownFinish(String text) {
+        voiceRecipeFragment.appSpeak(text,false);
+    }
 }

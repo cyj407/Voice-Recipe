@@ -2,6 +2,7 @@ package inputProcessing;
 
 import android.util.Log;
 
+import fragmentPage.VoiceRecipeFragment;
 import voiceRecipe.MainActivity;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class OptimalCuisine {
         WordSegmenter ws = new WordSegmenter();
         int maxMatch = -1;
 
-        cuisine = new ArrayList<>(MainActivity.cuisine);
+        cuisine = new ArrayList<>(VoiceRecipeFragment.cuisine);
 
         for(int i = 0;i<cuisine.size();++i){
             ArrayList<String> result = ws.segWord(cuisine.get(i),"");

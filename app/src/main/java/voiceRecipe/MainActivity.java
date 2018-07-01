@@ -1,182 +1,141 @@
 package voiceRecipe;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.speech.RecognizerIntent;
-import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.view.MenuItem;
 
 import com.example.linyunchen.voicerecipe.R;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
-import inputProcessing.FetchRecipe;
-import inputProcessing.OptimalCuisine;
-import inputProcessing.WordSegmenter;
+import fragmentPage.AboutFragment;
+import fragmentPage.SettingFragment;
+import fragmentPage.TimerFragment;
+import fragmentPage.VoiceRecipeFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
-    public static ArrayList<String> cuisine,recipe;
+    private DrawerLayout drawerLayout;
+    public android.support.v4.app.FragmentManager fragmentManager;
 
-    private MessageAdapter messageAdapter;  // show the message
-    private ListView listView;              // show the whole conversation
-    private TextToSpeech textToSpeech;
-    private ImageButton imageButton;        // microphone
+    private Fragment curFragment;
+    public static boolean microphoneOn = true;
 
-    private String localCuisineData;
-    private boolean decideCuisine = false;
-    private int count = 0;
-
-    public void getAllCuisine(){
-        cuisine = new ArrayList<>();
-        try{
-            InputStream is = getAssets().open("cuisine.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            localCuisineData = new String(buffer);
-            JSONArray localDataArray = new JSONArray(localCuisineData);
-
-            for(int i = 0;i<localDataArray.length();++i){
-                JSONObject obj = localDataArray.getJSONObject(i);
-                cuisine.add(obj.getString("name"));
-            }
-        }catch (Exception e){   e.printStackTrace(); }
-    }
+    private TimerFragment timerFragment = new TimerFragment();
+    private SettingFragment settingFragment = new SettingFragment();
+    private AboutFragment aboutFragment = new AboutFragment();
+    private VoiceRecipeFragment voiceRecipeFragment = new VoiceRecipeFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        messageAdapter = new MessageAdapter(this);
-        listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(messageAdapter);
-
-        getAllCuisine();
-
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status == TextToSpeech.SUCCESS){
-                    textToSpeech.setLanguage(Locale.CHINESE);
-                    appSpeak("歡迎使用說一口好菜！請問你想要做什麼料理？");
-                }
+        fragmentManager = getSupportFragmentManager();
+        if(findViewById(R.id.fragment_container)!=null){
+            if(savedInstanceState != null){
+                return;
             }
-        });
+            // set initial fragment to the voice recipe
+            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.fragment_container,voiceRecipeFragment,"voiceRecipe").commit();
+            onAttachFragment(voiceRecipeFragment);
+        }
 
-        imageButton = (ImageButton) findViewById(R.id.imageButton);
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                userSpeak();
-            }
-        });
+        curFragment = getSupportFragmentManager().findFragmentByTag("voiceRecipe");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawerLayout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.open,R.string.close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
-    protected void onDestroy() {
-        if(textToSpeech != null){
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-        }
-        super.onDestroy();
-    }
-
-    // always let the latest message show on top
-    void newMessage(String text, boolean belongsToCurrentUser){
-        messageAdapter.add(new Message(text, belongsToCurrentUser));
-        listView.smoothScrollToPosition(listView.getCount() - 1);
-    }
-
-    public void appSpeak(final String text) {
-        newMessage(text, false);
-    //    textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);   // ?
-        textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
-    }
-
-    public void userSpeak() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "請說話");
-        try{
-            startActivityForResult(intent, 1);
-        }
-        catch(ActivityNotFoundException e){}
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if((requestCode == 1) && (data != null) && (resultCode == RESULT_OK)){
-            ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-        //    Log.i("onActivityResult",result.get(0).toString());
-            newMessage(result.get(0).toString(), true);     // true -> user talks
-            appReply(result.get(0).toString());
-        }
-    }
-
-    public void appReply(String message) {
-        ArrayList<String> userSpeakSeg = new WordSegmenter().segWord(message, "");
-        // get the vocal result after segmenting words
-
-        if(!decideCuisine) {
-            // send the message to the RecipeDatabase
-            OptimalCuisine oc = new OptimalCuisine();
-            String dishName = oc.findOptimalCuisine(message);
-            FetchRecipe fetchRecipe = new FetchRecipe();
-            fetchRecipe.execute();
-
-            appSpeak("我們推薦你的料理是："+dishName+"\n你要做這道料理嗎？請回覆。");
-            decideCuisine = true;
-            return;
-        }
-
-        for(int i = 0; i < userSpeakSeg.size(); i++) {
-            // "finish" message from user
-            if(count == 0){
-                if(userSpeakSeg.get(i).equals("好") || userSpeakSeg.get(i).equals("可以") || userSpeakSeg.get(i).equals("繼續") || userSpeakSeg.get(i).equals("需要") || userSpeakSeg.get(i).equals("準備")){
-                    appSpeak(recipe.get(count++));
-                    return;
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        Fragment nextFragment = null;
+        String nextFragmentTag = "";
+        switch (item.getItemId()){
+            case R.id.nag_chat:
+                microphoneOn = true;
+                nextFragmentTag = "voiceRecipe";
+                nextFragment = getSupportFragmentManager().findFragmentByTag("voiceRecipe");
+                break;
+            case R.id.nag_countdown:
+                microphoneOn = false;
+                nextFragmentTag = "timer";
+                if(getSupportFragmentManager().findFragmentByTag("timer") == null){
+                    nextFragment = timerFragment;
                 }
                 else{
-                    appSpeak("請輸入其他的料理。若輸入同樣的料理名，我們會推薦一樣的結果。");
-                    decideCuisine = false;
-                    return;
+                    nextFragment = getSupportFragmentManager().findFragmentByTag("timer");
+                }
+                break;
+            case R.id.nag_setting:
+                microphoneOn = false;
+                nextFragmentTag = "setting";
+                if(getSupportFragmentManager().findFragmentByTag("setting") == null){
+                    nextFragment = settingFragment;
+                }
+                else{
+                    nextFragment = getSupportFragmentManager().findFragmentByTag("setting");
+                }
+                break;
+            case R.id.nag_about:
+                microphoneOn = false;
+                nextFragmentTag = "about";
+                if(getSupportFragmentManager().findFragmentByTag("about") == null){
+                    nextFragment = aboutFragment;
+                }
+                else{
+                    nextFragment = getSupportFragmentManager().findFragmentByTag("about");
+                }
+                break;
+        }
+        if(curFragment != nextFragment){
+            for(int i = 0;i< fm.getFragments().size();++i){
+                Fragment tmp = fm.getFragments().get(i);
+                if(!fm.getFragments().get(i).getTag().equals(nextFragmentTag)) {
+                    fragmentTransaction.hide(tmp);
                 }
             }
-
-            if(userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {
-                if(count < recipe.size()) {
-
-                    appSpeak(recipe.get(count));
-
-                    // seg recipe
-                    ArrayList<String> segStepContent = new WordSegmenter().segWord(recipe.get(count), "");
-                    for(int j = 0;j<segStepContent.size();++j){
-                        if(segStepContent.get(j).equals("分鐘")){
-                            appSpeak("要幫你計時"+segStepContent.get(j-2)+"分鐘嗎？請回覆。");
-                            break;
-                        }
-                    }
-                    count++;
-                    return;
-                }
+            if(!nextFragment.isAdded()){
+                fragmentTransaction.add(R.id.fragment_container,nextFragment,nextFragmentTag).commit();
+            }
+            else{
+                fragmentTransaction.show(nextFragment).commit();
             }
         }
-        // vocal result can't be recognized
-        appSpeak("對不起，我沒有聽懂，請你再說一次。");
-        return;
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
+
 }

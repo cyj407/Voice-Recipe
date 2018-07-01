@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import fragmentPage.VoiceRecipeFragment;
 import voiceRecipe.MainActivity;
 
 
@@ -61,7 +62,7 @@ public class FetchRecipe extends AsyncTask<Void,Void,Void>{
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        MainActivity.recipe = this.recipe;
+        VoiceRecipeFragment.recipe = this.recipe;
     }
 
 }

@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     nextFragment = shareFragment;
                 }
                 else{
-                    nextFragment = getSupportFragmentManager().findFragmentByTag("setting");
+                    nextFragment = getSupportFragmentManager().findFragmentByTag("share");
                 }
                 break;
             case R.id.nag_cuisine:

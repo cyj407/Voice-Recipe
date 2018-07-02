@@ -2,22 +2,19 @@ package fragmentPage;
 
 public class CuisineItem {
     private String head;
-    private String desc;
     private String imageUrl;
     private String recipeUrl;
+    private String ratingStar;
 
-    public CuisineItem(String head, String desc, String imageUrl, String recipeUrl){
+    public CuisineItem(String head, String ratingStar, String imageUrl, String recipeUrl){
         this.head = head;
-        this.desc = desc;
         this.imageUrl = imageUrl;
         this.recipeUrl = recipeUrl;
+        this.ratingStar = ratingStar;
     }
 
     public String getHead() {
         return head;
-    }
-    public String getDesc() {
-        return desc;
     }
 
     public String getImageUrl() {
@@ -26,5 +23,9 @@ public class CuisineItem {
 
     public String getRecipeUrl() {
         return recipeUrl;
+    }
+
+    public String getRatingStar() {
+        return ratingStar;
     }
 }

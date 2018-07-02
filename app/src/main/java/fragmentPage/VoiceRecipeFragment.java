@@ -131,7 +131,6 @@ public class VoiceRecipeFragment extends Fragment {
         if(addToListView){
             newMessage(text, false);
         }
-        //    textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
     }
 
@@ -149,7 +148,6 @@ public class VoiceRecipeFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if((requestCode == 1) && (data != null) && (resultCode == this.getActivity().RESULT_OK)){
             ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            //    Log.i("onActivityResult",result.get(0).toString());
             newMessage(result.get(0).toString(), true);     // true -> user talks
             appReply(result.get(0).toString());
         }
@@ -184,7 +182,7 @@ public class VoiceRecipeFragment extends Fragment {
                 }
             }
 
-            if(userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {
+            if(userSpeakSeg.get(i).equalsIgnoreCase("ok") || userSpeakSeg.get(i).equals("然後") ||userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {
                 if(count < recipe.size()) {
                     appSpeak(recipe.get(count),true);
                     // seg recipe
@@ -239,14 +237,11 @@ public class VoiceRecipeFragment extends Fragment {
             public void onTick(long millisUntilFinished) {
                 long timerLeftInMillisec = millisUntilFinished/1000;
                 timeLeftText = String.format("%02d:%02d",(timerLeftInMillisec%3600)/60,(timerLeftInMillisec%60));
-                //     MainActivity.countdownTextView.setText(timeLeftText);
             }
             @Override
             public void onFinish() {
-            //    MainActivity.countdownTextView.setText("");
                 Toast.makeText(getContext(),"倒數計時已結束",Toast.LENGTH_SHORT).show();
                 appSpeak("倒數計時已結束、倒數計時已結束、倒數計時已結束。",false);
-            //    countdownFinishListener.onCountdownFinish("倒數計時已結束、倒數計時已結束、倒數計時已結束");
             }
         }.start();
     }

@@ -8,11 +8,13 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +50,8 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
         final CuisineItem cuisineItem = cuisineItems.get(position);
 
         holder.textViewHead.setText(cuisineItem.getHead());
-        holder.textViewDesc.setText(cuisineItem.getDesc());
+        holder.ratingBar.setRating(Integer.valueOf(cuisineItem.getRatingStar()));
+        Log.i("showRating",Integer.valueOf(cuisineItem.getRatingStar()).toString());
 
         Picasso.get()
                 .load(cuisineItem.getImageUrl())
@@ -87,7 +90,7 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         public TextView textViewHead;
-        public TextView textViewDesc;
+        public RatingBar ratingBar;
         public ImageView imageViewImage;
         public LinearLayout linearLayout;
 
@@ -95,7 +98,7 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
             super(itemView);
 
             textViewHead = (TextView) itemView.findViewById(R.id.textView_name);
-            textViewDesc = (TextView) itemView.findViewById(R.id.textView_desc);
+            ratingBar = (RatingBar) itemView.findViewById(R.id.ratingBar);
             imageViewImage = (ImageView) itemView.findViewById(R.id.imageView_cuisine);
             linearLayout = (LinearLayout) itemView.findViewById(R.id.layout_item);
         }

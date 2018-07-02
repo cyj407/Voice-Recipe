@@ -10,12 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.linyunchen.voicerecipe.R;
 
 import fragmentPage.AboutFragment;
-import fragmentPage.SettingFragment;
+import fragmentPage.ShareFragment;
 import fragmentPage.CuisineFragment;
 import fragmentPage.VoiceRecipeFragment;
 
@@ -24,11 +25,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     public android.support.v4.app.FragmentManager fragmentManager;
 
+    public ImageView imageView;
+
     private Fragment curFragment;
     public static boolean microphoneOn = true;
 
     private CuisineFragment cuisineFragment;
-    private SettingFragment settingFragment;
+    private ShareFragment shareFragment;
     private AboutFragment aboutFragment;
     private VoiceRecipeFragment voiceRecipeFragment;
 
@@ -38,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         cuisineFragment = new CuisineFragment();
-        settingFragment = new SettingFragment();
+        shareFragment = new ShareFragment();
         aboutFragment = new AboutFragment();
         voiceRecipeFragment = new VoiceRecipeFragment();
 
@@ -80,11 +83,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nextFragmentTag = "voiceRecipe";
                 nextFragment = getSupportFragmentManager().findFragmentByTag("voiceRecipe");
                 break;
-            case R.id.nag_setting:
+            case R.id.nag_share:
                 microphoneOn = false;
-                nextFragmentTag = "setting";
-                if(getSupportFragmentManager().findFragmentByTag("setting") == null){
-                    nextFragment = settingFragment;
+                nextFragmentTag = "share";
+                if(getSupportFragmentManager().findFragmentByTag("share") == null){
+                    nextFragment = shareFragment;
                 }
                 else{
                     nextFragment = getSupportFragmentManager().findFragmentByTag("setting");

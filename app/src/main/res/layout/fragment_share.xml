@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBubble_blue"
+    android:layout_weight="10"
+    android:padding="10dp"
+    android:orientation="vertical"
+    android:id="@+id/fragment_share">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="365dp"
+        android:layout_height="161dp"
+        android:layout_weight="7" />
+
+    <ImageButton
+        android:layout_weight="1"
+        android:id="@+id/imageBtn_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/baseline_photo_camera_black_24dp"/>
+
+    <Button
+        android:layout_weight="1"
+        android:id="@+id/imageBtn_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="打開相簿"/>
+
+
+    <ImageButton
+        android:layout_weight="1"
+        android:id="@+id/imageBtn_share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/baseline_share_black_24dp"/>
+
+</LinearLayout>

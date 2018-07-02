@@ -1,18 +1,27 @@
 package fragmentPage;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.linyunchen.voicerecipe.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import voiceRecipe.MainActivity;
 
 public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHolder>{
 
@@ -36,7 +45,7 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CuisineItem cuisineItem = cuisineItems.get(position);
+        final CuisineItem cuisineItem = cuisineItems.get(position);
 
         holder.textViewHead.setText(cuisineItem.getHead());
         holder.textViewDesc.setText(cuisineItem.getDesc());
@@ -44,6 +53,30 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
         Picasso.get()
                 .load(cuisineItem.getImageUrl())
                 .into(holder.imageViewImage);
+
+        holder.linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder ab = new AlertDialog.Builder(v.getContext());
+                ab.setMessage("確定要查看這個食譜嗎？將會連結到網頁。")
+                        .setCancelable(false)
+                        .setPositiveButton("確認", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(cuisineItem.getRecipeUrl()));
+                                context.startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                ab.create();
+                ab.show();
+            }
+        });
     }
 
     @Override
@@ -56,6 +89,7 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
         public TextView textViewHead;
         public TextView textViewDesc;
         public ImageView imageViewImage;
+        public LinearLayout linearLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -63,6 +97,7 @@ public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHold
             textViewHead = (TextView) itemView.findViewById(R.id.textView_name);
             textViewDesc = (TextView) itemView.findViewById(R.id.textView_desc);
             imageViewImage = (ImageView) itemView.findViewById(R.id.imageView_cuisine);
+            linearLayout = (LinearLayout) itemView.findViewById(R.id.layout_item);
         }
     }
 }

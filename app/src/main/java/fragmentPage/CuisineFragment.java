@@ -31,7 +31,7 @@ import java.util.List;
 
 public class CuisineFragment extends Fragment {
 
-    private static final String urlData = "https://api.myjson.com/bins/1divhm";
+    private static final String urlData = "https://api.myjson.com/bins/74t7u";
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -73,7 +73,8 @@ public class CuisineFragment extends Fragment {
                                 CuisineItem item = new CuisineItem(
                                         jo.getString("name"),
                                         jo.getString("desc"),
-                                        jo.getString("image")
+                                        jo.getString("image"),
+                                        jo.getString("url")
                                 );
                                 cuisineItems.add(item);
                             }

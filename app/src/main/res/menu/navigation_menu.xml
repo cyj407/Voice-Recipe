@@ -3,36 +3,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nag_chat"
-            android:icon="@mipmap/baseline_chat_black_24dp"
-            android:title="學習做菜"/>
+    <item android:title="說一口好菜">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nag_chat"
+                    android:icon="@mipmap/baseline_chat_black_24dp"
+                    android:title="學習做菜"/>
 
-        <item
-            android:id="@+id/nag_cuisine"
-            android:icon="@mipmap/baseline_restaurant_menu_black_24dp"
-            android:title="好菜總覽"/>
+                <item
+                    android:id="@+id/nag_cuisine"
+                    android:icon="@mipmap/baseline_restaurant_menu_black_24dp"
+                    android:title="好菜總覽"/>
 
-        <item
-            android:id="@+id/nag_setting"
-            android:icon="@mipmap/baseline_settings_black_24dp"
-            android:title="設定"/>
+                <item
+                    android:id="@+id/nag_share"
+                    android:icon="@mipmap/baseline_share_black_24dp"
+                    android:title="分享做菜"/>
 
-        <item
-            android:id="@+id/nag_about"
-            android:icon="@mipmap/baseline_label_black_24dp"
-            android:title="關於"/>
+                <item
+                    android:id="@+id/nag_about"
+                    android:icon="@mipmap/baseline_label_black_24dp"
+                    android:title="關於好菜"/>
 
-    </group>
+            </group>
+        </menu>
+    </item>
 
-    <group>
-        <item
-            android:id="@+id/nag_countdown"
-            android:icon="@mipmap/baseline_timelapse_black_24dp"
-            android:title="目前計時"/>
-
-    </group>
+    <item android:title="做菜小幫手">
+        <menu>
+            <item
+                android:id="@+id/nag_countdown"
+                android:icon="@mipmap/baseline_timelapse_black_24dp"
+                android:title="倒數計時"/>
+        </menu>
+    </item>
 
 
 </menu>

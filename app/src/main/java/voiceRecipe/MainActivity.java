@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.example.linyunchen.voicerecipe.R;
 
 import fragmentPage.AboutFragment;
-import fragmentPage.ShareFragment;
 import fragmentPage.CuisineFragment;
 import fragmentPage.VoiceRecipeFragment;
 
@@ -31,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static boolean microphoneOn = true;
 
     private CuisineFragment cuisineFragment;
-    private ShareFragment shareFragment;
     private AboutFragment aboutFragment;
     private VoiceRecipeFragment voiceRecipeFragment;
 
@@ -41,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         cuisineFragment = new CuisineFragment();
-        shareFragment = new ShareFragment();
         aboutFragment = new AboutFragment();
         voiceRecipeFragment = new VoiceRecipeFragment();
 
@@ -82,16 +79,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 microphoneOn = true;
                 nextFragmentTag = "voiceRecipe";
                 nextFragment = getSupportFragmentManager().findFragmentByTag("voiceRecipe");
-                break;
-            case R.id.nag_share:
-                microphoneOn = false;
-                nextFragmentTag = "share";
-                if(getSupportFragmentManager().findFragmentByTag("share") == null){
-                    nextFragment = shareFragment;
-                }
-                else{
-                    nextFragment = getSupportFragmentManager().findFragmentByTag("share");
-                }
                 break;
             case R.id.nag_cuisine:
                 microphoneOn = false;

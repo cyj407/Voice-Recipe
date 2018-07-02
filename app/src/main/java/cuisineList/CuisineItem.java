@@ -1,4 +1,4 @@
-package fragmentPage;
+package cuisineList;
 
 public class CuisineItem {
     private String head;

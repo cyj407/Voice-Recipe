@@ -1,11 +1,10 @@
-package fragmentPage;
+package cuisineList;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,14 +15,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.linyunchen.voicerecipe.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-import voiceRecipe.MainActivity;
 
 public class CuisineAdapter extends RecyclerView.Adapter<CuisineAdapter.ViewHolder>{
 

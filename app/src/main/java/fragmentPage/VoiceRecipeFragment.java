@@ -14,6 +14,7 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +44,7 @@ import voiceRecipe.MessageAdapter;
 public class VoiceRecipeFragment extends Fragment {
 
     public static ArrayList<String> cuisine,recipe;
+
     public static String timeLeftText = "00:01";
 
     private MessageAdapter messageAdapter;  // show the message
@@ -154,6 +156,7 @@ public class VoiceRecipeFragment extends Fragment {
     }
 
     public void appReply(String message) {
+
         ArrayList<String> userSpeakSeg = new WordSegmenter().segWord(message, "");
         // get the vocal result after segmenting words
 
@@ -168,8 +171,9 @@ public class VoiceRecipeFragment extends Fragment {
             return;
         }
 
+
         for(int i = 0; i < userSpeakSeg.size(); i++) {
-            // "finish" message from user
+
             if(count == 0){
                 if(userSpeakSeg.get(i).equals("好") || userSpeakSeg.get(i).equals("可以") || userSpeakSeg.get(i).equals("繼續") || userSpeakSeg.get(i).equals("需要") || userSpeakSeg.get(i).equals("準備")){
                     appSpeak(recipe.get(count++),true);
@@ -180,6 +184,14 @@ public class VoiceRecipeFragment extends Fragment {
                     decideCuisine = false;
                     return;
                 }
+            }
+
+            if (recipe.get(count).equals("恭喜你完成了！")) {
+                appSpeak(recipe.get(count)+"\n你還想要繼續做什麼料理嗎？請回覆想要做的料理。", true);
+                recipe.clear();
+                decideCuisine = false;
+                count = 0;
+                return;
             }
 
             if(userSpeakSeg.get(i).equalsIgnoreCase("ok") || userSpeakSeg.get(i).equals("然後") ||userSpeakSeg.get(i).equals("完成") || userSpeakSeg.get(i).equals("準備好") || userSpeakSeg.get(i).equals("做好") || userSpeakSeg.get(i).equals("好了") || userSpeakSeg.get(i).equals("下一步")) {

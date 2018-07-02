@@ -1,4 +1,4 @@
-package fragmentPage;
+package cuisineList;
 
 import android.support.annotation.Nullable;
 

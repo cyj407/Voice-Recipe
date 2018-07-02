@@ -17,17 +17,19 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.linyunchen.voicerecipe.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cuisineList.CuisineAdapter;
+import cuisineList.CuisineItem;
+import cuisineList.StringRequest_utf8;
 
 public class CuisineFragment extends Fragment {
 

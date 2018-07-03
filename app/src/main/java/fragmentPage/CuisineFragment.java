@@ -33,8 +33,8 @@ import cuisineList.StringRequest_utf8;
 
 public class CuisineFragment extends Fragment {
 
-    private static final String urlData = "https://api.myjson.com/bins/74t7u";
-
+  //  private static final String urlData = "https://api.myjson.com/bins/74t7u";
+    private static final String urlData = "https://api.myjson.com/bins/14mksc";
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
 

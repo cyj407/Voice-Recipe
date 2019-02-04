@@ -25,3 +25,7 @@ An Android application tell you the recipe in Chinese step by step.
 
 ## Reference
 - [icook](https://icook.tw/)
+
+## Authors
+- [cyj407](https://github.com/cyj407) <[dfghj345678@gmail.com](mailto:dfghj345678@gmail.com)>
+- [F74042060](https://github.com/F74042060) <[F74042060@mail.ncku.edu.tw](mailto:F74042060@mail.ncku.edu.tw)>
